@@ -1,6 +1,8 @@
 from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
+from datetime import datetime
+import ipdb
 
 from models import db, Message
 
@@ -40,8 +42,10 @@ def messages_by_id(id):
         return response
     else:
         if request.method == 'PATCH':
-            for attr in request.get_json():
-                setattr(message, attr, request.get_json().get(attr))
+            setattr(message, 'body', request.get_json()['body'])
+            setattr(message, 'updated_at', datetime.now())
+            db.session.add(message)
+            db.session.commit()
             response = make_response(message.to_dict(), 200)
             return response
         elif request.method == 'DELETE':
